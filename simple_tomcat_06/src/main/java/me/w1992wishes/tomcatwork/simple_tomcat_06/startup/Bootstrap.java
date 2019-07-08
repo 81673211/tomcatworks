@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by wanqinfeng on 2017/2/22.
  */
-public class BootStrap {
+public class Bootstrap {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BootStrap.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Bootstrap.class);
 
     public static void main(String[] args) {
 

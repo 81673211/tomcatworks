@@ -28,7 +28,7 @@ public class HttpConnector implements Runnable {
             System.exit(1);
         }
         while (!stopped) {
-            Socket socket = null;
+            Socket socket;
             try {
                 socket = serverSocket.accept();
             } catch (IOException e) {

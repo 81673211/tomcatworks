@@ -57,4 +57,25 @@ public class SimpleLoader implements Loader {
         this.container = container;
     }
 
+    //---------------
+
+    @Override
+    public boolean getDelegate() {
+        return false;
+    }
+
+    @Override
+    public void setDelegate(boolean delegate) {
+
+    }
+
+    @Override
+    public boolean getReloadable() {
+        return false;
+    }
+
+    @Override
+    public void setReloadable(boolean reloadable) {
+
+    }
 }
