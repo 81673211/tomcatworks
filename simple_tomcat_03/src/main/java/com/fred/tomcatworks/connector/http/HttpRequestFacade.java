@@ -1,8 +1,5 @@
 package com.fred.tomcatworks.connector.http;
 
-import com.fred.tomcatworks.util.ParameterMap;
-import com.fred.tomcatworks.util.RequestUtil;
-
 import javax.servlet.AsyncContext;
 import javax.servlet.DispatcherType;
 import javax.servlet.RequestDispatcher;
@@ -19,191 +16,19 @@ import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class HttpRequest implements HttpServletRequest {
+public class HttpRequestFacade implements HttpServletRequest {
 
-    private InputStream is;
-    private String queryString;
-    private String requestedSessionId;
-    private boolean requestedSessionURL;
-    private boolean requestedSessionCookie;
-    private String method;
-    private String protocol;
-    private String requestURI;
-    private int contentLength;
-    private String contentType;
+    private HttpServletRequest request;
 
-
-    /**
-     * The set of cookies associated with this Request.
-     */
-    private ArrayList<Cookie> cookies = new ArrayList();
-
-    /**
-     * The parsed parameters for this request.  This is populated only if
-     * parameter information is requested via one of the
-     * <code>getParameter()</code> family of method calls.  The key is the
-     * parameter name, while the value is a String array of values for this
-     * parameter.
-     * <p>
-     * <strong>IMPLEMENTATION NOTE</strong> - Once the parameters for a
-     * particular request are parsed and stored here, they are not modified.
-     * Therefore, application level access to the parameters need not be
-     * synchronized.
-     */
-    protected ParameterMap parameters = null;
-
-    /**
-     * Have the parameters for this request been parsed yet?
-     */
-    protected boolean parsed = false;
-
-    /**
-     * The HTTP headers associated with this Request, keyed by name.  The
-     * values are ArrayLists of the corresponding header values.
-     */
-    private HashMap<String, List<String>> headers = new HashMap<>();
-
-    /**
-     * Parse the parameters of this request, if it has not already occurred.
-     * If parameters are present in both the query string and the request
-     * content, they are merged.
-     */
-    protected void parseParameters() {
-        if (parsed)
-            return;
-        ParameterMap results = parameters;
-        if (results == null)
-            results = new ParameterMap();
-        results.setLocked(false);
-        String encoding = getCharacterEncoding();
-        if (encoding == null)
-            encoding = "ISO-8859-1";
-
-        // Parse any parameters specified in the query string
-        String queryString = getQueryString();
-        try {
-            RequestUtil.parseParameters(results, queryString, encoding);
-        }
-        catch (UnsupportedEncodingException e) {
-            ;
-        }
-
-        // Parse any parameters specified in the input stream
-        String contentType = getContentType();
-        if (contentType == null)
-            contentType = "";
-        int semicolon = contentType.indexOf(';');
-        if (semicolon >= 0) {
-            contentType = contentType.substring(0, semicolon).trim();
-        }
-        else {
-            contentType = contentType.trim();
-        }
-        if ("POST".equals(getMethod()) && (getContentLength() > 0)
-                && "application/x-www-form-urlencoded".equals(contentType)) {
-            try {
-                int max = getContentLength();
-                int len = 0;
-                byte buf[] = new byte[getContentLength()];
-                ServletInputStream is = getInputStream();
-                while (len < max) {
-                    int next = is.read(buf, len, max - len);
-                    if (next < 0 ) {
-                        break;
-                    }
-                    len += next;
-                }
-                is.close();
-                if (len < max) {
-                    throw new RuntimeException("Content length mismatch");
-                }
-                RequestUtil.parseParameters(results, buf, encoding);
-            }
-            catch (UnsupportedEncodingException ue) {
-                ;
-            }
-            catch (IOException e) {
-                throw new RuntimeException("Content read fail");
-            }
-        }
-
-        // Store the final results
-        results.setLocked(true);
-        parsed = true;
-        parameters = results;
-    }
-
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
-    }
-
-    public void setContentLength(int contentLength) {
-        this.contentLength = contentLength;
-    }
-
-    public void addHeader(String name, String value) {
-        final String lowerCaseName = name.toLowerCase();
-        synchronized (headers) {
-            List<String> values = headers.get(lowerCaseName);
-            if (values == null) {
-                values = new ArrayList<>();
-                headers.put(name, values);
-            }
-            values.add(value);
-        }
-    }
-
-    public InputStream getStream() {
-        return is;
-    }
-
-    public void addCookie(Cookie cookie) {
-        synchronized (cookies) {
-            cookies.add(cookie);
-        }
-    }
-
-    public void setRequestURI(String requestURI) {
-        this.requestURI = requestURI;
-    }
-
-    public void setProtocol(String protocol) {
-        this.protocol = protocol;
-    }
-
-    public void setMethod(String method) {
-        this.method = method;
-    }
-
-    public HttpRequest(InputStream inputStream) {
-        this.is = inputStream;
-    }
-
-    public void setQueryString(String queryString) {
-        this.queryString = queryString;
-    }
-
-    public void setRequestedSessionId(String requestedSessionId) {
-        this.requestedSessionId = requestedSessionId;
-    }
-
-    public void setRequestedSessionURL(boolean requestedSessionURL) {
-        this.requestedSessionURL = requestedSessionURL;
-    }
-
-    public void setRequestedSessionCookie(boolean requestedSessionCookie) {
-        this.requestedSessionCookie = requestedSessionCookie;
+    public HttpRequestFacade(HttpServletRequest request) {
+        this.request = request;
     }
 
     @Override
@@ -288,7 +113,7 @@ public class HttpRequest implements HttpServletRequest {
 
     @Override
     public String getRequestURI() {
-        return requestURI;
+        return null;
     }
 
     @Override
@@ -423,8 +248,7 @@ public class HttpRequest implements HttpServletRequest {
 
     @Override
     public Map<String, String[]> getParameterMap() {
-        parseParameters();
-        return this.parameters;
+        return null;
     }
 
     @Override

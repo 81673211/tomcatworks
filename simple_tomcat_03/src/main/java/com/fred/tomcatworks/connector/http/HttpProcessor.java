@@ -1,5 +1,7 @@
 package com.fred.tomcatworks.connector.http;
 
+import com.fred.tomcatworks.ServletProcessor;
+import com.fred.tomcatworks.StaticResourceProcessor;
 import com.fred.tomcatworks.util.RequestUtil;
 
 import javax.servlet.ServletException;
@@ -34,6 +36,11 @@ public class HttpProcessor {
             parseRequest(inputStream, outputStream);
             parseHeaders(inputStream);
 
+            if (request.getRequestURI().startsWith("/servlet")) {
+                new ServletProcessor().process(request, response);
+            } else {
+                new StaticResourceProcessor().process(request, response);
+            }
         } catch (IOException | ServletException e) {
             e.printStackTrace();
         }
